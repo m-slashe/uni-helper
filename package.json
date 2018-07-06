@@ -1,0 +1,15 @@
+{
+  "name": "uni-helper",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "bin": {
+    "uni": "./index.js"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "commander": "2.16.0",
+    "dateformat": "^3.0.3"
+  }
+}
