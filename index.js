@@ -40,15 +40,44 @@ function openIssueFile(issue){
     exec(`start ${issuePath}`, {}, errorHandler);
 }
 
+function getModifiedFiles(){
+    return new Promise((resolve, reject) => {
+        exec('git status -s', {}, (err, files) => {
+            if(err) reject(err)
+            files = files.trim().split('\n').map(file => file.trim().split(' ')[1]);
+            resolve(files);
+        })
+    })
+}
+
+async function insertModifiedFiles(issue){
+    try{
+        const issuePath = path.resolve(FILE_HOME, `${issue}.sql`);
+        const modifiedFiles = await getModifiedFiles();
+        modifiedFiles.forEach(file => {
+            fs.appendFile(issuePath, `${file}${os.EOL}/${os.EOL}`, errorHandler)
+        });
+    }catch(err){
+        console.error(err);
+    }
+}
+
 program
   .version(require('./package.json').version);
 
 program
     .command('open <issue>')
+    .description('Abre a issue passada como parâmetro')
     .action(openIssueFile)
 
 program
     .command('create <issue>')
+    .description('Cria a issue passada como parâmetro')
     .action(createIssueFiles);
+
+program
+    .command('update <issue>')
+    .description('Adiciona os arquivos modificados na issue')
+    .action(insertModifiedFiles)
 
 program.parse(process.argv);
