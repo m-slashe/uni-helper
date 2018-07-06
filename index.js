@@ -18,6 +18,15 @@ function getName(){
     })    
 }
 
+function getCurrentBranch(){
+    return new Promise((resolve, reject) => {
+        exec('git branch', {}, (err, branch) => {
+            if(err) reject(err)
+            resolve(branch.trim().split(' ')[1])
+        })
+    })
+}
+
 function errorHandler(err) {
     if (err) throw err;
 }
@@ -50,8 +59,9 @@ function getModifiedFiles(){
     })
 }
 
-async function insertModifiedFiles(issue){
+async function insertModifiedFiles(){
     try{
+        const issue = await getCurrentBranch();
         const issuePath = path.resolve(FILE_HOME, `${issue}.sql`);
         const modifiedFiles = await getModifiedFiles();
         modifiedFiles.forEach(file => {
@@ -76,8 +86,12 @@ program
     .action(createIssueFiles);
 
 program
-    .command('update <issue>')
-    .description('Adiciona os arquivos modificados na issue')
+    .command('update')
+    .description('Adiciona os arquivos modificados na branch atual')
     .action(insertModifiedFiles)
+
+program
+    .command('*')
+    .action(() => console.log('Command not found'))
 
 program.parse(process.argv);
